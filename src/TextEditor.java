@@ -2,6 +2,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
+import javax.tools.Tool;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +15,8 @@ import java.util.Scanner;
 
 public class TextEditor extends JFrame implements ActionListener {
     JTextArea textArea;
+    JFrame frame;
+    JFrame componentListener;
     JScrollPane scrollPane;
     JSpinner fontSizeSpinner;
     JLabel fontLabel;
@@ -22,12 +27,29 @@ public class TextEditor extends JFrame implements ActionListener {
     JMenuItem openItem;
     JMenuItem saveItem;
     JMenuItem exitItem;
+
+    JMenuItem cut;
+    JMenuItem copy;
+    JMenuItem paste;
     TextEditor(){
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Text Editor");
-        this.setSize(500,500);
-        this.setLayout(new FlowLayout());
-        this.setLocationRelativeTo(null);
+        frame = new JFrame("Text Editor");
+
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("Text Editor");
+        frame.setSize(1000,590);
+        frame.setResizable(false);
+        frame.setLayout(new FlowLayout());
+        //to place the frame in to the middle
+        frame.setLocationRelativeTo(null);
 
         textArea = new JTextArea();
         textArea.setLineWrap(true);
@@ -35,8 +57,8 @@ public class TextEditor extends JFrame implements ActionListener {
         textArea.setFont(new Font("Arial",Font.PLAIN,20));
 
         scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(490 ,450));
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(1000 ,590));
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         fontLabel = new JLabel("Font:");
 
@@ -61,10 +83,16 @@ public class TextEditor extends JFrame implements ActionListener {
 
         // ------------ menu Bar -----------------
         menuBar = new JMenuBar();
+
+        //create a menu for menu
         fileMenu = new JMenu("File");
+
+        //creates menu item
         openItem = new JMenuItem("Open");
         saveItem = new JMenuItem("Save");
         exitItem = new JMenuItem("Exit");
+
+        //adding action Listeners
         openItem.addActionListener(this);
         exitItem.addActionListener(this);
         saveItem.addActionListener(this);
@@ -73,17 +101,34 @@ public class TextEditor extends JFrame implements ActionListener {
         fileMenu.add(saveItem);
         fileMenu.add(exitItem);
 
+        JMenu editMenu = new JMenu("Edit");
+
+        // Create menu items
+        cut = new JMenuItem("cut");
+        copy = new JMenuItem("copy");
+        paste = new JMenuItem("paste");
+
+        // Add action listener
+        cut.addActionListener(this);
+        copy.addActionListener(this);
+        paste.addActionListener(this);
+
+        editMenu.add(cut);
+        editMenu.add(copy);
+        editMenu.add(paste);
+
         menuBar.add(fileMenu);
+        menuBar.add(editMenu);
         // ------------ menu Bar -----------------
 
 
-        this.setJMenuBar(menuBar);
-        this.add(fontLabel);
-        this.add(fontSizeSpinner);
-        this.add(fontColorButton);
-        this.add(fontBox);
-        this.add(scrollPane);
-        this.setVisible(true);
+        frame.setJMenuBar(menuBar);
+        frame.add(fontLabel);
+        frame.add(fontSizeSpinner);
+        frame.add(fontColorButton);
+        frame.add(fontBox);
+        frame.add(scrollPane);
+        frame.setVisible(true);
 
     }
 
@@ -148,5 +193,11 @@ public class TextEditor extends JFrame implements ActionListener {
                 }
             }
         }
+        if(e.getSource() == cut)
+            textArea.cut();
+        if(e.getSource() == copy)
+            textArea.copy();
+        if(e.getSource() == paste)
+            textArea.paste();
     }
 }
